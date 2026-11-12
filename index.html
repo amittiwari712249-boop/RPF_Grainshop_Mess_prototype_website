@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RPF Grainshop Barrack & Mess</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="barrack-mode">
+<div class="bg-layer" id="bgA"></div>
+<div class="bg-layer" id="bgB"></div>
+<div class="bg-overlay"></div>
+
+<header class="topbar">
+  <div class="brand">
+  <div class="brand-container">
+  <img src="RpfPostKgp.jpeg" alt="RPF Post Kharagpur" class="brand-image" />
+
+</div>
+    <div><h1 id="pageTitle">RPF Grainshop Barrack</h1><p id="pageSub">Bed occupancy</p></div>
+  </div>
+  <div class="mode-switch" role="tablist" aria-label="Dashboard mode">
+    <button class="mode-btn active" id="barrackModeBtn" type="button" role="tab">Barrack Mode</button>
+    <button class="mode-btn" id="messModeBtn" type="button" role="tab">Mess Mode</button>
+  </div>
+  <div class="contact">
+    <span>Mess Commander</span>
+    <a href="tel:+919002081630">9002081630</a>
+  </div>
+</header>
+
+<main>
+  <div class="toolbar">
+    <span class="chip" id="syncStatus">This device only</span>
+    <span class="chip" id="editStatus">View only</span>
+    <button id="editToggle" class="btn-outline" type="button">Edit (PIN)</button>
+  </div>
+  <nav class="page-nav">
+    <a href="index.html" class="active">Dashboard</a>
+    <a href="menu.html">Today's menu</a>
+    <a href="notices.html">Notices</a>
+    <a href="qr.html">QR code</a>
+  </nav>
+
+  <!-- ================= BARRACK DASHBOARD ================= -->
+  <div id="barrackView">
+    <section class="summary">
+      <article class="card"><span>Total beds</span><strong id="sTotal">0</strong></article>
+      <article class="card"><span>Occupied beds</span><strong id="sOccupied">0</strong></article>
+      <article class="card accent"><span>Current vacant beds</span><strong id="sVacant">0</strong></article>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <div><h2>Staff Barrack</h2><p id="staffInfo"></p></div>
+        <button class="btn-primary edit-only" data-add="staff" type="button">＋ Allot bed</button>
+      </div>
+      <div class="bed-grid" id="grid-staff"></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Bed No</th><th>Rank</th><th>Name</th><th class="edit-only"></th></tr></thead>
+        <tbody id="rows-staff"></tbody></table></div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <div><h2>Officers' Rooms</h2><p id="officersInfo"></p></div>
+        <button class="btn-primary edit-only" data-add="officers" type="button">＋ Allot bed</button>
+      </div>
+      <div class="bed-grid officers" id="grid-officers"></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Bed No</th><th>Rank</th><th>Name</th><th class="edit-only"></th></tr></thead>
+        <tbody id="rows-officers"></tbody></table></div>
+    </section>
+  </div>
+
+  <!-- ================= MESS DASHBOARD ================= -->
+  <div id="messView" hidden>
+    <nav class="subtabs" id="messTabs" aria-label="Mess sections">
+      <button type="button" class="subtab active" data-tab="accounts">Accounts</button>
+      <button type="button" class="subtab" data-tab="menu">Menu</button>
+      <button type="button" class="subtab" data-tab="purchase">Daily Purchase</button>
+      <button type="button" class="subtab" data-tab="change">Item Change</button>
+      <button type="button" class="subtab" data-tab="feedback">Feedback</button>
+    </nav>
+
+    <!-- ===== Accounts ===== -->
+    <div class="tabpane" id="tab-accounts">
+      <section class="summary three">
+        <article class="card"><span>Mess members</span><strong id="mCount">0</strong></article>
+        <article class="card warn"><span>Total bill to be paid</span><strong id="mBill">₹0</strong></article>
+        <article class="card accent"><span>Total security deposit</span><strong id="mDeposit">₹0</strong></article>
+      </section>
+      <section class="block">
+        <div class="block-head">
+          <div><h2>Mess Accounts</h2><p>Bill to be paid and security deposit of each member</p></div>
+          <div class="head-tools">
+            <input id="messSearch" class="search" placeholder="Search name / rank…">
+            <button class="btn-primary edit-only" id="addMessBtn" type="button">＋ Add member</button>
+          </div>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Rank</th><th>Name</th><th class="num">Bill to be paid</th><th class="num">Security deposit</th><th class="edit-only"></th></tr></thead>
+          <tbody id="messRows"></tbody>
+          <tfoot><tr><td colspan="2">Total</td><td class="num" id="fBill">₹0</td><td class="num" id="fDeposit">₹0</td><td class="edit-only"></td></tr></tfoot>
+        </table></div>
+      </section>
+    </div>
+
+    <!-- ===== Menu ===== -->
+    <div class="tabpane" id="tab-menu" hidden>
+      <section class="summary three" id="menuToday"></section>
+      <section class="block">
+        <div class="block-head">
+          <div><h2>Weekly Menu</h2><p>RPF Grainshop Mess </p></div>
+        </div>
+        <div class="table-wrap"><table class="menu-table">
+          <thead><tr><th>Day</th><th>Lunch</th><th>Dinner</th></tr></thead>
+          <tbody id="menuRows"></tbody>
+        </table></div>
+      </section>
+    </div>
+
+    <!-- ===== Daily purchase ===== -->
+    <div class="tabpane" id="tab-purchase" hidden>
+      <section class="summary three">
+        <article class="card"><span>Today's purchase</span><strong id="pToday">₹0</strong></article>
+        <article class="card warn"><span>This month's purchase</span><strong id="pMonth">₹0</strong></article>
+        <article class="card"><span>Total entries</span><strong id="pCount">0</strong></article>
+      </section>
+      <section class="block">
+        <div class="block-head">
+          <div><h2>Daily Purchase</h2><p>Items bought for the mess, with quantity, rate and amount</p></div>
+          <div class="head-tools">
+            <input id="purSearch" class="search" placeholder="Search item / date…">
+            <button class="btn-primary edit-only" id="addPurBtn" type="button">＋ Add purchase</button>
+          </div>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Item</th><th class="num">Quantity</th><th class="num">Rate</th><th class="num">Amount</th><th class="edit-only"></th></tr></thead>
+          <tbody id="purRows"></tbody>
+          <tfoot><tr><td colspan="4">Total (shown rows)</td><td class="num" id="pTotal">₹0</td><td class="edit-only"></td></tr></tfoot>
+        </table></div>
+      </section>
+    </div>
+
+    <!-- ===== Item change ===== -->
+    <div class="tabpane" id="tab-change" hidden>
+      <section class="block">
+        <div class="block-head">
+          <div><h2>Item Change</h2><p>Record when a menu item is replaced by another one, and why</p></div>
+          <button class="btn-primary edit-only" id="addChgBtn" type="button">＋ Add item change</button>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Old item</th><th>New item</th><th>Reason</th><th class="edit-only"></th></tr></thead>
+          <tbody id="chgRows"></tbody>
+        </table></div>
+      </section>
+    </div>
+
+    <!-- ===== Feedback ===== -->
+    <div class="tabpane" id="tab-feedback" hidden>
+      <section class="summary two">
+        <article class="card"><span>Feedback received</span><strong id="fCount">0</strong></article>
+        <article class="card accent"><span>Average rating</span><strong id="fAvg">–</strong></article>
+      </section>
+      <section class="block">
+        <div class="block-head">
+          <div><h2>Give Feedback</h2><p>Open to everyone – no PIN needed</p></div>
+          <button class="btn-outline" type="button" id="shareBtn">Share menu</button>
+        </div>
+        <form id="fbForm" class="fb-form">
+          <label>Name (optional)<input name="name" maxlength="60"></label>
+          <label>Rank (optional)<input name="rank" list="rankList" maxlength="40"></label>
+          <label>Rating
+            <input type="hidden" name="rating" id="rating" value="0">
+            <div id="stars" class="stars-input" title="Tap to rate">★★★★★</div>
+          </label>
+          <label class="wide">Comment<textarea name="comment" rows="3" maxlength="300" required></textarea></label>
+          <button class="btn-primary" id="fbSend" type="submit">Send feedback</button>
+          <p id="fbMsg" class="fb-msg"></p>
+        </form>
+      </section>
+      <section class="block">
+        <div class="block-head"><div><h2>Feedback Received</h2><p>Newest first</p></div></div>
+        <div id="fbList"></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer>RPF GrainShop Barrack &amp; Mess · Mess Commander: <a href="tel:+919002081630">9002081630</a></footer>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modal-head"><h3 id="modalTitle">Add record</h3><button class="icon-btn" id="modalClose" type="button">×</button></div>
+    <form id="modalForm"></form>
+  </div>
+</div>
+<datalist id="itemList"></datalist>
+<datalist id="rankList"><option>Constable</option><option>Head Constable</option><option>ASI</option><option>Sub-Inspector</option><option>Inspector</option><option>Assistant Commandant</option><option>Commandant</option></datalist>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Today's Menu · RPF Grainshop Mess</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bg-layer show" style="background-image:url('images/background.jpg')"></div>
+<div class="bg-overlay"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-container">
+      <img src="RpfPostKgp.jpeg" alt="RPF Post Kharagpur" class="brand-image">
+    </div>
+    <div>
+      <h1>RPF Grainshop Mess</h1>
+      <p>Today's menu &amp; feedback</p>
+    </div>
+  </div>
+  <div class="contact">
+    <span>Mess Commander</span>
+    <a href="tel:+919002081630">9002081630</a>
+  </div>
+</header>
+
+<main class="simple-main">
+  <nav class="page-nav">
+    <a href="index.html">Full dashboard</a>
+    <a href="menu.html" class="active">Today's menu</a>
+    <a href="notices.html">Notices</a>
+    <a href="qr.html">QR code</a>
+  </nav>
+
+  <div class="toolbar" style="margin-bottom:12px">
+    <span class="chip" id="syncStatus">Loading…</span>
+  </div>
+
+  <section class="block">
+    <div class="block-head">
+      <div><h2 id="todayTitle">Today's menu</h2><p id="todayDate"></p></div>
+    </div>
+    <div class="menu-today" id="todayCards">
+      <article class="card accent"><span>Lunch</span><strong class="small" id="lunchText">…</strong></article>
+      <article class="card"><span>Dinner</span><strong class="small" id="dinnerText">…</strong></article>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <div><h2>Weekly menu</h2><p>Lunch &amp; Dinner</p></div>
+    </div>
+    <div class="table-wrap">
+      <table class="menu-table">
+        <thead><tr><th>Day</th><th>Lunch</th><th>Dinner</th></tr></thead>
+        <tbody id="weekRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <div><h2>Give Feedback</h2><p>Open to everyone – no PIN needed</p></div>
+    </div>
+    <form id="fbForm" class="fb-form">
+      <label>Name (optional)<input name="name" maxlength="60"></label>
+      <label>Rank (optional)<input name="rank" list="rankList" maxlength="40"></label>
+      <label>Rating
+        <input type="hidden" name="rating" id="rating" value="0">
+        <div id="stars" class="stars-input" title="Tap to rate">★★★★★</div>
+      </label>
+      <label class="wide">Comment<textarea name="comment" rows="3" maxlength="300" required></textarea></label>
+      <button class="btn-primary" id="fbSend" type="submit">Send feedback</button>
+      <p id="fbMsg" class="fb-msg"></p>
+    </form>
+  </section>
+</main>
+
+<footer>RPF GrainShop Barrack &amp; Mess · Mess Commander: <a href="tel:+919002081630">9002081630</a></footer>
+
+<datalist id="rankList">
+  <option>Constable</option><option>Head Constable</option><option>ASI</option>
+  <option>Sub-Inspector</option><option>Inspector</option>
+  <option>Assistant Commandant</option><option>Commandant</option>
+</datalist>
+
+<script>
+const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxfg8SANXOJCC_G_HESCCo5B4WKJNvaPxx9EE4DtOsoUJW5uelnV3wY9BhvKfjwgwjN3A/exec";
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DEFAULT_MENU = {
+  Sunday:    {Lunch:"Roti, Daal, Chawal, Paneer/Chicken, Bhujiya, Salad", Dinner:"Roti, Seasonal Vegetable"},
+  Monday:    {Lunch:"Roti, Daal, Chawal, Curry Pakoda Chokha/Sambhar, Papad", Dinner:"Roti, Rajma/Tadka"},
+  Tuesday:   {Lunch:"Roti, Daal, Chawal Sabji, Mix Veg Sabji, Chatni", Dinner:"Roti, Aalu Matar, Kheer/Sewai"},
+  Wednesday: {Lunch:"Roti, Daal, Chawal, Paneer, Chicken/Fish, Bhujiya, Salad", Dinner:"Roti, Aalu Bhindi, Sweet Chatni"},
+  Thursday:  {Lunch:"Roti, Daal, Chawal, Lauki, Green Veg Bhujiya", Dinner:"Roti, Chili Soya"},
+  Friday:    {Lunch:"Roti, Daal, Chawal, Egg/Dahi, Aalu Bhujiya", Dinner:"Roti, Seasonal Veg Sabji"},
+  Saturday:  {Lunch:"Veg Khichdi, Chatni, Papad, Chokha", Dinner:"Puri, Kabuli Chana, Sewai/Kheer"}
+};
+const $ = id => document.getElementById(id);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const today = DAYS[new Date().getDay()];
+$('todayDate').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+$('todayTitle').textContent = "Today's menu · " + today;
+
+let menuMap = {...DEFAULT_MENU};
+function item(day, meal){
+  return (menuMap[day] && menuMap[day][meal]) || 'Not set';
+}
+
+function render(){
+  $('lunchText').textContent = item(today,'Lunch');
+  $('dinnerText').textContent = item(today,'Dinner');
+  $('weekRows').innerHTML = DAYS.map(d =>
+    `<tr class="${d===today?'today':''}"><td><b>${d}${d===today?' · TODAY':''}</b></td>
+     <td>${esc(item(d,'Lunch'))}</td><td>${esc(item(d,'Dinner'))}</td></tr>`
+  ).join('');
+}
+
+async function loadMenu(){
+  try{
+    const r = await fetch(SHEET_API_URL + '?action=getAll');
+    const j = await r.json();
+    if(j && j.ok && j.data && j.data.menu && j.data.menu.length){
+      menuMap = {};
+      j.data.menu.forEach(row => {
+        if(!menuMap[row.day]) menuMap[row.day] = {};
+        menuMap[row.day][row.meal] = row.items || '';
+      });
+      $('syncStatus').textContent = 'Live from Google Sheet';
+    } else {
+      $('syncStatus').textContent = 'Using default menu';
+    }
+  }catch(e){
+    $('syncStatus').textContent = 'Sheet unavailable · default menu';
+  }
+  render();
+}
+
+/* Feedback */
+let starRating = 0;
+const starsEl = $('stars');
+starsEl.onclick = e => {
+  const rect = starsEl.getBoundingClientRect();
+  const n = Math.max(1, Math.min(5, Math.ceil((e.clientX - rect.left) / (rect.width / 5))));
+  starRating = n;
+  $('rating').value = n;
+  starsEl.textContent = '★★★★★'.slice(0,n) + '☆'.repeat(5-n);
+  starsEl.style.color = '#f4b400';
+};
+
+$('fbForm').onsubmit = async e => {
+  e.preventDefault();
+  const v = Object.fromEntries(new FormData(e.target));
+  const btn = $('fbSend'), msg = $('fbMsg');
+  const rec = {name:(v.name||'').trim(), rank:(v.rank||'').trim(), rating:+v.rating||starRating, comment:(v.comment||'').trim()};
+  if(!rec.rating){ msg.textContent='Please select a rating.'; msg.style.color='#b42318'; return; }
+  if(!rec.comment) return;
+  btn.disabled = true; msg.textContent = '';
+  try{
+    const body = new URLSearchParams({action:'addFeedback', ...rec});
+    const r = await fetch(SHEET_API_URL, {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'}, body});
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error||'Failed');
+    msg.textContent = 'Feedback submitted. Thank you!'; msg.style.color = '#16733a';
+    e.target.reset(); starRating = 0;
+    starsEl.textContent = '★★★★★'; starsEl.style.color = '#a9b1bb';
+  }catch(err){
+    msg.textContent = 'Could not send: ' + (err.message||'try again');
+    msg.style.color = '#b42318';
+  }
+  btn.disabled = false;
+};
+
+loadMenu();
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notices · RPF Grainshop Mess</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bg-layer show" style="background-image:url('images/background.jpg')"></div>
+<div class="bg-overlay"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-container">
+      <img src="RpfPostKgp.jpeg" alt="RPF Post Kharagpur" class="brand-image">
+    </div>
+    <div>
+      <h1>RPF Grainshop Mess</h1>
+      <p>Notice board</p>
+    </div>
+  </div>
+  <div class="contact">
+    <span>Mess Commander</span>
+    <a href="tel:+919002081630">9002081630</a>
+  </div>
+</header>
+
+<main class="simple-main">
+  <nav class="page-nav">
+    <a href="index.html">Full dashboard</a>
+    <a href="menu.html">Today's menu</a>
+    <a href="notices.html" class="active">Notices</a>
+    <a href="qr.html">QR code</a>
+  </nav>
+
+  <div class="toolbar" style="margin-bottom:12px">
+    <span class="chip" id="syncStatus">Loading…</span>
+  </div>
+
+  <section class="block">
+    <div class="block-head">
+      <div><h2>Latest notices</h2><p>Newest first</p></div>
+    </div>
+    <div id="noticeList">
+      <p class="muted">Loading notices…</p>
+    </div>
+  </section>
+</main>
+
+<footer>RPF GrainShop Barrack &amp; Mess · Mess Commander: <a href="tel:+919002081630">9002081630</a></footer>
+
+<script>
+const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxfg8SANXOJCC_G_HESCCo5B4WKJNvaPxx9EE4DtOsoUJW5uelnV3wY9BhvKfjwgwjN3A/exec";
+const $ = id => document.getElementById(id);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function fmtDate(s){
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s||''));
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : esc(s);
+}
+
+async function loadNotices(){
+  try{
+    const r = await fetch(SHEET_API_URL + '?action=getAll');
+    const j = await r.json();
+    if(!(j && j.ok && j.data)) throw new Error('No data');
+    const list = (j.data.notices || []).filter(n => {
+      const a = String(n.active||'Yes').toLowerCase();
+      return a === 'yes' || a === 'y' || a === '1' || a === 'true' || a === '';
+    });
+    $('syncStatus').textContent = 'Live from Google Sheet';
+    if(!list.length){
+      $('noticeList').innerHTML = '<p class="muted">No active notices right now.</p>';
+      return;
+    }
+    // newest first
+    list.sort((a,b) => String(b.date).localeCompare(String(a.date)));
+    $('noticeList').innerHTML = list.map(n => {
+      const urgent = String(n.urgent||'').toLowerCase() === 'yes' || String(n.urgent||'').toLowerCase() === 'y';
+      return `<article class="notice ${urgent?'urgent':''}">
+        <h3>${esc(n.title||'Notice')}</h3>
+        <p>${esc(n.message||'')}</p>
+        <small>${fmtDate(n.date)}${urgent?' · Urgent':''}</small>
+      </article>`;
+    }).join('');
+  }catch(e){
+    $('syncStatus').textContent = 'Sheet unavailable';
+    $('noticeList').innerHTML = '<p class="muted">Could not load notices. Check the Google Sheet connection.</p>';
+  }
+}
+
+loadNotices();
+setInterval(loadNotices, 60000);
+</script>
+</body>
+</html>
